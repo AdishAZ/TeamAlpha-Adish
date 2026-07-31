@@ -4,15 +4,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth_store';
-import { 
-  Ticket, 
-  Database, 
-  BarChart, 
-  LogOut, 
-  UserCircle,
-  Globe,
-  Monitor
-} from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -24,108 +16,92 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
-  const menuGroups = [
-    {
-      title: "Reception Center",
-      items: [
-        { name: "Tickets", path: "/admin/board", icon: Ticket }
-      ]
-    },
-    {
-      title: "AI Capabilities",
-      items: [
-        { name: "Knowledge Base", path: "/admin/knowledge", icon: Database }
-      ]
-    },
-    {
-      title: "System Admin",
-      items: [
-        { name: "Analytics", path: "/admin/analytics", icon: BarChart }
-      ]
-    }
-  ];
-
   return (
-    <div className="flex h-screen bg-white overflow-hidden text-slate-800 font-sans">
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0">
-        {/* Logo Area */}
-        <div className="h-14 flex items-center px-6 border-b border-slate-200 gap-3">
-          <div className="w-6 h-6 rounded bg-blue-600 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">C</span>
-          </div>
-          <h1 className="font-bold text-slate-800 tracking-wide text-sm">CampusPilot Admin</h1>
+      <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
+        <div className="h-16 flex items-center px-6 border-b border-slate-800">
+          <h1 className="font-bold text-white text-xl tracking-tight">CampusPilot</h1>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
-          {menuGroups.map((group, i) => (
-            <div key={i}>
-              <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">
-                {group.title}
-              </h2>
-              <div className="space-y-1">
-                {group.items.map((item, j) => {
-                  const isActive = pathname === item.path;
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={j}
-                      href={item.path}
-                      className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive 
-                          ? 'bg-blue-600 text-white shadow-sm' 
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 mr-3 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                      {item.name}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+          <Link
+            href="/admin/board"
+            className={`block px-4 py-2 rounded transition-colors relative ${
+              pathname === '/admin/board' ? 'text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            {pathname === '/admin/board' && (
+              <motion.div 
+                layoutId="sidebar-active"
+                className="absolute inset-0 bg-blue-600 rounded z-0"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">Inbox</span>
+          </Link>
+          
+          <Link
+            href="/admin/knowledge"
+            className={`block px-4 py-2 rounded transition-colors relative ${
+              pathname === '/admin/knowledge' ? 'text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            {pathname === '/admin/knowledge' && (
+              <motion.div 
+                layoutId="sidebar-active"
+                className="absolute inset-0 bg-blue-600 rounded z-0"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">Knowledge Base</span>
+          </Link>
+          
+          <Link
+            href="/admin/analytics"
+            className={`block px-4 py-2 rounded transition-colors relative ${
+              pathname === '/admin/analytics' ? 'text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            {pathname === '/admin/analytics' && (
+              <motion.div 
+                layoutId="sidebar-active"
+                className="absolute inset-0 bg-blue-600 rounded z-0"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">Analytics</span>
+          </Link>
         </nav>
 
-        {/* User / Logout */}
-        <div className="p-4 border-t border-slate-200 space-y-2">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <UserCircle className="w-8 h-8 text-slate-300" />
-            <div className="overflow-hidden">
-              <p className="text-sm font-medium text-slate-700 truncate">{user?.email || 'admin@campuspilot.edu'}</p>
-              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{user?.role || 'ADMIN'}</p>
-            </div>
-          </div>
+        <div className="p-4 border-t border-slate-800 text-slate-400 text-sm">
+          <p className="truncate mb-2">{user?.email}</p>
+          <button 
+            onClick={handleLogout}
+            className="text-red-400 hover:text-red-300 transition-colors w-full text-left"
+          >
+            Logout
+          </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
-          <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
-            <Monitor className="w-4 h-4" />
-            <span>Dashboard</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <button className="text-slate-400 hover:text-slate-600 transition-colors">
-              <Globe className="w-4 h-4" />
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="text-slate-400 hover:text-red-600 transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+      <div className="flex-1 flex flex-col min-w-0 bg-slate-50 relative z-10">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+          <h2 className="text-xl font-semibold text-slate-800 capitalize">
+            {pathname.split('/').pop() || 'Dashboard'}
+          </h2>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-hidden bg-white">
-          {children}
+        <main className="flex-1 overflow-hidden relative">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="h-full"
+          >
+            {children}
+          </motion.div>
         </main>
       </div>
     </div>

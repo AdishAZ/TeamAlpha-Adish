@@ -4,7 +4,7 @@ import google.generativeai as genai
 from typing import List, Dict, Any
 
 # Setup Gemini API key
-api_key = os.getenv("GEMINI_API_KEY", "LOCAL_API_KEY")
+api_key = os.getenv("GEMINI_API_KEY", "locaal api key")
 genai.configure(api_key=api_key)
 
 import time

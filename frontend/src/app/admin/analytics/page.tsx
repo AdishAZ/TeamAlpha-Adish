@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth_store';
 import { fetchApi } from '@/lib/api_client';
 import { MessageSquare, AlertCircle, CheckCircle2, FileText, ArrowUpRight, Clock, Zap, HelpCircle, BarChart3, TrendingUp, Users, BookOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface AnalyticsData {
   total_conversations: number;
@@ -82,11 +83,26 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Top KPI Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1 }
+            }
+          }}
+        >
           {metrics.map((metric, idx) => {
             const Icon = metric.icon;
             return (
-              <div key={idx} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden">
+              <motion.div 
+                key={idx} 
+                variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+                className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden"
+              >
                 <div className="flex justify-between items-start z-10">
                   <div className={`p-2 rounded-lg ${metric.bgColor} text-slate-600`}>
                     <Icon className={`w-4 h-4 ${metric.color}`} />
@@ -97,16 +113,16 @@ export default function AnalyticsDashboard() {
                   <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mt-1">{metric.title}</p>
                 </div>
                 <div className={`absolute -right-4 -bottom-4 w-16 h-16 rounded-full ${metric.bgColor} opacity-30`} />
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* Detailed Stats Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Categories */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
             <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center justify-between">
               Top Categories
               <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">AI Detected</span>
@@ -123,10 +139,10 @@ export default function AnalyticsDashboard() {
                 ))
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Ticket Status & Priority */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
             <h3 className="text-sm font-bold text-slate-800 mb-4">Ticket Status</h3>
             <div className="space-y-4">
               <div className="flex gap-2">
@@ -156,10 +172,10 @@ export default function AnalyticsDashboard() {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Feedback */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col">
             <h3 className="text-sm font-bold text-slate-800 mb-4">Student Feedback</h3>
             <div className="flex gap-4">
               <div className="flex-1 bg-emerald-50 rounded-lg p-4 border border-emerald-100 text-center">
@@ -171,12 +187,12 @@ export default function AnalyticsDashboard() {
                 <div className="text-xs font-semibold text-red-600 uppercase mt-1">Not Helpful 👎</div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
         </div>
 
         {/* Feature 3, 6, 7 Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Knowledge Base Health (Feature 3) */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col">
@@ -246,7 +262,7 @@ export default function AnalyticsDashboard() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </div>

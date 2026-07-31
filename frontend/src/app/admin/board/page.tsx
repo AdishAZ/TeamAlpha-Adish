@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth_store';
 import { fetchApi } from '@/lib/api_client';
 import { Send, Clock, User, AlertCircle, FileText, CheckCircle, Archive, LayoutDashboard } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ChatSession {
   id: string;
@@ -129,37 +130,43 @@ export default function AdminBoardPage() {
             <div className="p-6 text-center text-slate-400 text-sm">No active tickets.</div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {sessions.map(s => (
-                <div 
-                  key={s.id} 
-                  onClick={() => selectSession(s)}
-                  className={`p-4 cursor-pointer transition-colors ${activeSession?.id === s.id ? 'bg-blue-50 border-l-2 border-l-blue-600' : 'hover:bg-slate-50 border-l-2 border-l-transparent'}`}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="font-medium text-sm text-slate-800 line-clamp-1 flex-1 pr-2">{s.title || `Student ${s.student_id.substring(0,6)}...`}</span>
-                    <span className="text-xs text-slate-400 shrink-0 mt-0.5">{new Date(s.started_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide ${
-                      s.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' :
-                      s.status === 'CLOSED' ? 'bg-slate-100 text-slate-600' :
-                      'bg-blue-100 text-blue-700'
-                    }`}>
-                      {s.status}
-                    </span>
-                    {s.priority && (
-                      <span className={`text-[10px] px-2 py-0.5 rounded-sm font-bold uppercase tracking-wide ${
-                        s.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                        s.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                        s.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-slate-100 text-slate-700'
+              <AnimatePresence>
+                {sessions.map((s, idx) => (
+                  <motion.div 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ delay: idx * 0.05 }}
+                    key={s.id} 
+                    onClick={() => selectSession(s)}
+                    className={`p-4 cursor-pointer transition-colors ${activeSession?.id === s.id ? 'bg-blue-50 border-l-2 border-l-blue-600' : 'hover:bg-slate-50 border-l-2 border-l-transparent'}`}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-medium text-sm text-slate-800 line-clamp-1 flex-1 pr-2">{s.title || `Student ${s.student_id.substring(0,6)}...`}</span>
+                      <span className="text-xs text-slate-400 shrink-0 mt-0.5">{new Date(s.started_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide ${
+                        s.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' :
+                        s.status === 'CLOSED' ? 'bg-slate-100 text-slate-600' :
+                        'bg-blue-100 text-blue-700'
                       }`}>
-                        {s.priority}
+                        {s.status}
                       </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+                      {s.priority && (
+                        <span className={`text-[10px] px-2 py-0.5 rounded-sm font-bold uppercase tracking-wide ${
+                          s.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+                          s.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                          s.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-slate-100 text-slate-700'
+                        }`}>
+                          {s.priority}
+                        </span>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -185,20 +192,27 @@ export default function AdminBoardPage() {
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sender === 'ADMIN' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
-                    msg.sender === 'ADMIN' 
-                      ? 'bg-blue-600 text-white rounded-br-sm'
-                      : msg.sender === 'STUDENT'
-                      ? 'bg-white text-slate-800 border border-slate-200 rounded-bl-sm shadow-sm'
-                      : 'bg-slate-100 text-slate-700 border border-slate-200 rounded-bl-sm'
-                  }`}>
-                    {msg.sender === 'AI' && <div className="text-[10px] font-bold mb-1 text-slate-400 uppercase tracking-wider">AI Assistant</div>}
-                    <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
-                  </div>
-                </div>
-              ))}
+              <AnimatePresence>
+                {messages.map((msg, idx) => (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(idx * 0.05, 0.5) }}
+                    key={msg.id} className={`flex ${msg.sender === 'ADMIN' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
+                      msg.sender === 'ADMIN' 
+                        ? 'bg-blue-600 text-white rounded-br-sm'
+                        : msg.sender === 'STUDENT'
+                        ? 'bg-white text-slate-800 border border-slate-200 rounded-bl-sm shadow-sm'
+                        : 'bg-slate-100 text-slate-700 border border-slate-200 rounded-bl-sm'
+                    }`}>
+                      {msg.sender === 'AI' && <div className="text-[10px] font-bold mb-1 text-slate-400 uppercase tracking-wider">AI Assistant</div>}
+                      <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
               <div ref={messagesEndRef} className="h-2" />
             </div>
 
@@ -258,7 +272,10 @@ export default function AdminBoardPage() {
             try { aiMeta = JSON.parse(activeSession.ai_summary); } catch(e){}
           }
           return (
-            <div className="p-5 space-y-6 overflow-y-auto">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}
+              className="p-5 space-y-6 overflow-y-auto"
+            >
               
               {activeSession.department && (
                 <div>
@@ -354,7 +371,7 @@ export default function AdminBoardPage() {
                 </div>
               </div>
 
-            </div>
+            </motion.div>
           );
         })() : (
           <div className="flex-1 flex items-center justify-center p-6 text-center text-sm text-slate-400">

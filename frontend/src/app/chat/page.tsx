@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/auth_store';
 import { fetchApi } from '@/lib/api_client';
 import Link from 'next/link';
 import { Info, HelpCircle, ThumbsUp, ThumbsDown, BookOpen, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ChatMessage {
   id: string;
@@ -159,124 +160,135 @@ export default function ChatPage() {
 
       <main className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full z-10 scroll-smooth">
         <div className="space-y-6 pb-4">
-          {messages.map((msg) => {
-            let meta: any = { citations: [], related_questions: [] };
-            if (msg.citations_json) {
-              try { meta = JSON.parse(msg.citations_json); } catch(e){}
-            }
-            
-            const isGap = msg.is_knowledge_gap;
+          <AnimatePresence>
+            {messages.map((msg, idx) => {
+              let meta: any = { citations: [], related_questions: [] };
+              if (msg.citations_json) {
+                try { meta = JSON.parse(msg.citations_json); } catch(e){}
+              }
+              
+              const isGap = msg.is_knowledge_gap;
 
-            return (
-              <div key={msg.id} className={`flex flex-col gap-2 ${msg.sender === 'STUDENT' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-4 duration-300`}>
-                {isGap && (
-                  <div className="w-full max-w-[85%] bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-2 flex items-start gap-3 text-yellow-800 shadow-sm">
-                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-sm mb-1">Knowledge Gap Detected</p>
-                      <p className="text-sm opacity-90 mb-3">I'm sorry, I couldn't find this information in the uploaded university documents.</p>
-                      <button onClick={() => setShowEscalateInput(true)} className="bg-yellow-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors shadow-sm">
-                        Create Support Request
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div className={`max-w-[85%] sm:max-w-[75%] rounded-3xl px-6 py-4 shadow-sm relative group ${
-                  msg.sender === 'STUDENT' 
-                    ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-br-sm shadow-blue-500/20'
-                    : msg.sender === 'ADMIN'
-                    ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/50 rounded-bl-sm'
-                    : 'bg-white/80 backdrop-blur-md text-slate-800 border border-white/60 rounded-bl-sm shadow-xl'
-                }`}>
-                  {msg.sender === 'ADMIN' && <div className="text-xs font-bold mb-1.5 text-emerald-700 uppercase tracking-wider">Human Support</div>}
-                  {msg.sender === 'AI' && (
-                    <div className="flex justify-between items-center mb-1.5">
-                      <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">CampusPilot AI</div>
-                      {msg.confidence && (
-                        <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          parseInt(msg.confidence) > 80 ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                          parseInt(msg.confidence) > 50 ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
-                          'bg-red-50 text-red-600 border-red-200'
-                        }`}>
-                          {parseInt(msg.confidence) > 80 ? '🟢 High' : parseInt(msg.confidence) > 50 ? '🟡 Medium' : '🔴 Low'} {msg.confidence}
-                        </div>
-                      )}
+              return (
+                <motion.div 
+                  key={msg.id} 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(idx * 0.05, 0.5) }}
+                  className={`flex flex-col gap-2 ${msg.sender === 'STUDENT' ? 'items-end' : 'items-start'}`}
+                >
+                  {isGap && (
+                    <div className="w-full max-w-[85%] bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-2 flex items-start gap-3 text-yellow-800 shadow-sm">
+                      <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-sm mb-1">Knowledge Gap Detected</p>
+                        <p className="text-sm opacity-90 mb-3">I'm sorry, I couldn't find this information in the uploaded university documents.</p>
+                        <button onClick={() => setShowEscalateInput(true)} className="bg-yellow-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors shadow-sm">
+                          Create Support Request
+                        </button>
+                      </div>
                     </div>
                   )}
-                  
-                  <div className="whitespace-pre-wrap leading-relaxed text-[15px]">{msg.content}</div>
 
-                  {msg.sender === 'AI' && meta.citations?.length > 0 && (
-                    <div className="mt-4 pt-3 border-t border-slate-100/50">
-                      <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
-                        <BookOpen className="w-3.5 h-3.5" />
-                        Sources
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {meta.citations.map((c: any, i: number) => (
-                          <div key={i} className="flex items-center gap-1.5 bg-slate-50/80 border border-slate-200 rounded-md px-2.5 py-1 text-xs text-slate-600">
-                            📄 <span className="font-medium">{c.filename}</span> 
-                            {c.page && <span className="text-slate-400">Pg {c.page}</span>}
+                  <div className={`max-w-[85%] sm:max-w-[75%] rounded-3xl px-6 py-4 shadow-sm relative group ${
+                    msg.sender === 'STUDENT' 
+                      ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-br-sm shadow-blue-500/20'
+                      : msg.sender === 'ADMIN'
+                      ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/50 rounded-bl-sm'
+                      : 'bg-white/80 backdrop-blur-md text-slate-800 border border-white/60 rounded-bl-sm shadow-xl'
+                  }`}>
+                    {msg.sender === 'ADMIN' && <div className="text-xs font-bold mb-1.5 text-emerald-700 uppercase tracking-wider">Human Support</div>}
+                    {msg.sender === 'AI' && (
+                      <div className="flex justify-between items-center mb-1.5">
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">CampusPilot AI</div>
+                        {msg.confidence && (
+                          <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            parseInt(msg.confidence) > 80 ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                            parseInt(msg.confidence) > 50 ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
+                            'bg-red-50 text-red-600 border-red-200'
+                          }`}>
+                            {parseInt(msg.confidence) > 80 ? '🟢 High' : parseInt(msg.confidence) > 50 ? '🟡 Medium' : '🔴 Low'} {msg.confidence}
                           </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="whitespace-pre-wrap leading-relaxed text-[15px]">{msg.content}</div>
+
+                    {msg.sender === 'AI' && meta.citations?.length > 0 && (
+                      <div className="mt-4 pt-3 border-t border-slate-100/50">
+                        <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
+                          <BookOpen className="w-3.5 h-3.5" />
+                          Sources
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {meta.citations.map((c: any, i: number) => (
+                            <div key={i} className="flex items-center gap-1.5 bg-slate-50/80 border border-slate-200 rounded-md px-2.5 py-1 text-xs text-slate-600">
+                              📄 <span className="font-medium">{c.filename}</span> 
+                              {c.page && <span className="text-slate-400">Pg {c.page}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {msg.sender === 'AI' && msg.id !== 'welcome' && (
+                      <div className="absolute -right-12 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => submitFeedback(msg.id, 'HELPFUL')} className="p-1.5 bg-white rounded-full text-slate-400 hover:text-emerald-500 shadow-sm border border-slate-100"><ThumbsUp className="w-4 h-4"/></button>
+                        <button onClick={() => submitFeedback(msg.id, 'NOT_HELPFUL')} className="p-1.5 bg-white rounded-full text-slate-400 hover:text-red-500 shadow-sm border border-slate-100"><ThumbsDown className="w-4 h-4"/></button>
+                      </div>
+                    )}
+                  </div>
+
+                  {msg.sender === 'AI' && msg.id !== 'welcome' && !isGap && (
+                    <button onClick={() => explainAnswer(msg.id)} className="text-xs text-blue-600 font-medium flex items-center gap-1 hover:underline ml-2">
+                      <Info className="w-3 h-3" /> Explain this answer
+                    </button>
+                  )}
+
+                  {explanations[msg.id] && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="max-w-[75%] bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 whitespace-pre-wrap ml-6 shadow-sm">
+                      {explanations[msg.id]}
+                    </motion.div>
+                  )}
+
+                  {meta.related_questions?.length > 0 && (
+                    <div className="max-w-[75%] mt-2 ml-2">
+                      <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        Students also ask
+                      </div>
+                      <div className="flex flex-col gap-1.5 items-start">
+                        {meta.related_questions.map((rq: string, rqIdx: number) => (
+                          <button 
+                            key={rqIdx} 
+                            onClick={() => sendMessage(undefined, rq)}
+                            className="text-sm text-left bg-white/60 hover:bg-white/90 border border-slate-200 rounded-lg px-4 py-2 text-slate-600 transition-colors shadow-sm"
+                          >
+                            {rq}
+                          </button>
                         ))}
                       </div>
                     </div>
                   )}
-                  
-                  {msg.sender === 'AI' && msg.id !== 'welcome' && (
-                    <div className="absolute -right-12 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => submitFeedback(msg.id, 'HELPFUL')} className="p-1.5 bg-white rounded-full text-slate-400 hover:text-emerald-500 shadow-sm border border-slate-100"><ThumbsUp className="w-4 h-4"/></button>
-                      <button onClick={() => submitFeedback(msg.id, 'NOT_HELPFUL')} className="p-1.5 bg-white rounded-full text-slate-400 hover:text-red-500 shadow-sm border border-slate-100"><ThumbsDown className="w-4 h-4"/></button>
-                    </div>
-                  )}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+          
+          <AnimatePresence>
+            {loading && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="flex justify-start">
+                <div className="bg-white/80 backdrop-blur-md text-slate-500 shadow-xl border border-white/60 rounded-3xl rounded-bl-sm px-6 py-4">
+                  <span className="flex space-x-1">
+                    <span className="animate-bounce delay-75">•</span>
+                    <span className="animate-bounce delay-150">•</span>
+                    <span className="animate-bounce delay-300">•</span>
+                  </span>
                 </div>
-
-                {msg.sender === 'AI' && msg.id !== 'welcome' && !isGap && (
-                  <button onClick={() => explainAnswer(msg.id)} className="text-xs text-blue-600 font-medium flex items-center gap-1 hover:underline ml-2">
-                    <Info className="w-3 h-3" /> Explain this answer
-                  </button>
-                )}
-
-                {explanations[msg.id] && (
-                  <div className="max-w-[75%] bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 whitespace-pre-wrap ml-6 shadow-sm">
-                    {explanations[msg.id]}
-                  </div>
-                )}
-
-                {meta.related_questions?.length > 0 && (
-                  <div className="max-w-[75%] mt-2 ml-2">
-                    <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
-                      <HelpCircle className="w-3.5 h-3.5" />
-                      Students also ask
-                    </div>
-                    <div className="flex flex-col gap-1.5 items-start">
-                      {meta.related_questions.map((rq: string, idx: number) => (
-                        <button 
-                          key={idx} 
-                          onClick={() => sendMessage(undefined, rq)}
-                          className="text-sm text-left bg-white/60 hover:bg-white/90 border border-slate-200 rounded-lg px-4 py-2 text-slate-600 transition-colors shadow-sm"
-                        >
-                          {rq}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          {loading && (
-            <div className="flex justify-start animate-in fade-in duration-300">
-              <div className="bg-white/80 backdrop-blur-md text-slate-500 shadow-xl border border-white/60 rounded-3xl rounded-bl-sm px-6 py-4">
-                <span className="flex space-x-1">
-                  <span className="animate-bounce delay-75">•</span>
-                  <span className="animate-bounce delay-150">•</span>
-                  <span className="animate-bounce delay-300">•</span>
-                </span>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <div ref={messagesEndRef} className="h-4" />
         </div>
       </main>

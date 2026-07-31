@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchApi } from '@/lib/api_client';
-import { Search, BookOpen, AlertCircle } from 'lucide-react';
+import { Search, BookOpen, AlertCircle, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SmartSearchPage() {
@@ -11,22 +11,44 @@ export default function SmartSearchPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
   
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  // Feature 10: Recent Searches
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const suggestedSearches = [
+    "What is the late submission policy?",
+    "How to connect to campus wifi?",
+    "When is the add/drop deadline?"
+  ];
+
+  useEffect(() => {
+    const saved = localStorage.getItem('recentSearches');
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch(e) {}
+    }
+  }, []);
+
+  const saveRecentSearch = (q: string) => {
+    const updated = [q, ...recentSearches.filter(s => s !== q)].slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem('recentSearches', JSON.stringify(updated));
+  };
+  
+  const handleSearch = async (e?: React.FormEvent, explicitQuery?: string) => {
+    if (e) e.preventDefault();
+    const searchQuery = explicitQuery || query;
+    if (!searchQuery.trim()) return;
+    
+    setQuery(searchQuery);
+    saveRecentSearch(searchQuery);
     
     setLoading(true);
     setResults(null);
     try {
-      // Re-using the chat generation endpoint temporarily but treating it as a search query
-      // For a true hackathon MVP without adding too many routes, we can just spawn a temp chat session,
-      // but it's cleaner to just use the chat response logic.
-      // Wait, there is no direct search endpoint. Let's create a mock structure or use standard fetch if we had one.
-      // To implement this quickly, I will simulate it by calling the backend chat API on a transient session.
       const newSession = await fetchApi('/chat/sessions', { method: 'POST' });
       const aiResponse = await fetchApi(`/chat/sessions/${newSession.id}/message`, {
         method: 'POST',
-        body: JSON.stringify({ content: query })
+        body: JSON.stringify({ content: searchQuery })
       });
       
       let meta: any = { citations: [], related_questions: [] };
@@ -65,7 +87,7 @@ export default function SmartSearchPage() {
           <p className="text-slate-500">Search across all university documents instantly.</p>
         </div>
 
-        <form onSubmit={handleSearch} className="mb-10 relative">
+        <form onSubmit={handleSearch} className="mb-8 relative">
           <Search className="w-5 h-5 absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
           <input 
             type="text"
@@ -78,6 +100,51 @@ export default function SmartSearchPage() {
             {loading ? 'Searching...' : 'Search'}
           </button>
         </form>
+
+        {/* Feature 10: Recent and Suggested Searches (Shown when no results and not loading) */}
+        {!results && !loading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            {/* Recent Searches */}
+            {recentSearches.length > 0 && (
+              <div className="bg-white/60 backdrop-blur-md rounded-2xl p-6 border border-white/80 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <Clock className="w-4 h-4" /> Recent Searches
+                </h3>
+                <div className="space-y-2">
+                  {recentSearches.map((s, idx) => (
+                    <button 
+                      key={idx} 
+                      onClick={() => handleSearch(undefined, s)}
+                      className="w-full text-left px-4 py-2 rounded-xl hover:bg-white text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-3 text-sm group"
+                    >
+                      <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500" />
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Suggested Searches */}
+            <div className="bg-white/60 backdrop-blur-md rounded-2xl p-6 border border-white/80 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <BookOpen className="w-4 h-4" /> Suggested Topics
+              </h3>
+              <div className="space-y-2">
+                {suggestedSearches.map((s, idx) => (
+                  <button 
+                    key={idx} 
+                    onClick={() => handleSearch(undefined, s)}
+                    className="w-full text-left px-4 py-2 rounded-xl hover:bg-white text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-3 text-sm group border border-transparent hover:border-blue-100"
+                  >
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500" />
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {results && (
           <div className="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-white/60 animate-in fade-in slide-in-from-bottom-4">

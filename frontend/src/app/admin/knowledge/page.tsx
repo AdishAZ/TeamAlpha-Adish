@@ -5,6 +5,7 @@ import { fetchApi } from '@/lib/api_client';
 import { useAuthStore } from '@/lib/auth_store';
 import { useRouter } from 'next/navigation';
 import { Search, Filter, Plus, FileText, Settings2, MoreHorizontal, UploadCloud } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface KnowledgeDoc {
   id: string;
@@ -115,37 +116,45 @@ export default function KnowledgeBasePage() {
         </div>
 
         {/* Upload Pending Area */}
-        {file && (
-          <div className="p-4 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-sm text-blue-800">
-              <FileText className="w-5 h-5 text-blue-600" />
-              <span className="font-medium">{file.name}</span>
-              <span className="text-blue-500 text-xs">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setFile(null)}
-                className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 font-medium"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleUpload}
-                disabled={loading}
-                className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 shadow-sm"
-              >
-                {loading ? 'Uploading...' : 'Confirm Upload'}
-                {!loading && <UploadCloud className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {file && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="p-4 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
+                <div className="flex items-center gap-3 text-sm text-blue-800">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <span className="font-medium">{file.name}</span>
+                  <span className="text-blue-500 text-xs">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setFile(null)}
+                    className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleUpload}
+                    disabled={loading}
+                    className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                  >
+                    {loading ? 'Uploading...' : 'Confirm Upload'}
+                    {!loading && <UploadCloud className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {error && (
-          <div className="p-4 bg-red-50 border-b border-red-100 text-sm text-red-600 flex items-center gap-2">
-            <span className="font-semibold">Error:</span> {error}
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="p-4 bg-red-50 border-b border-red-100 text-sm text-red-600 flex items-center gap-2">
+                <span className="font-semibold">Error:</span> {error}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Data Table */}
         <div className="flex-1 overflow-auto bg-white">

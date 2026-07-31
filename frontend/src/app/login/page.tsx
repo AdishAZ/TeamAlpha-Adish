@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth_store';
 import { fetchApi } from '@/lib/api_client';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -67,7 +68,12 @@ export default function LoginPage() {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
       <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
 
-      <div className="w-full max-w-md p-10 space-y-6 glass-panel rounded-3xl mx-4 relative z-10 transition-all duration-300">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, type: 'spring', stiffness: 200, damping: 20 }}
+        className="w-full max-w-md p-10 space-y-6 glass-panel rounded-3xl mx-4 relative z-10 transition-all duration-300"
+      >
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight animated-gradient-text pb-1">CampusPilot</h1>
           <p className="mt-3 text-slate-500 font-medium">
@@ -75,11 +81,16 @@ export default function LoginPage() {
           </p>
         </div>
         
-        {error && (
-          <div className="p-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl">
-            {error}
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="p-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         <form onSubmit={handleSubmit} className="space-y-5 mt-8">
           <div>
@@ -120,7 +131,7 @@ export default function LoginPage() {
             {isRegistering ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

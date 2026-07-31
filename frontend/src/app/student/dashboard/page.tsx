@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/auth_store';
 import { fetchApi } from '@/lib/api_client';
 import Link from 'next/link';
 import { MessageSquare, LifeBuoy, CheckCircle, AlertCircle, ThumbsUp, Activity } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface StudentAnalytics {
   total_conversations: number;
@@ -74,10 +75,13 @@ export default function StudentDashboardPage() {
                 ))}
               </div>
             ) : data ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                initial="hidden" animate="show" variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
+              >
                 
                 {/* Metric 1 */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 shadow-sm relative overflow-hidden group">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }} className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 shadow-sm relative overflow-hidden group">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">Total AI Chats</p>
@@ -88,10 +92,10 @@ export default function StudentDashboardPage() {
                     </div>
                   </div>
                   <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-200 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
-                </div>
+                </motion.div>
 
                 {/* Metric 2 */}
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100 shadow-sm relative overflow-hidden group">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }} className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100 shadow-sm relative overflow-hidden group">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Human Support</p>
@@ -102,10 +106,10 @@ export default function StudentDashboardPage() {
                     </div>
                   </div>
                   <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-amber-200 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
-                </div>
+                </motion.div>
 
                 {/* Metric 3 */}
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 shadow-sm relative overflow-hidden group">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }} className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 shadow-sm relative overflow-hidden group">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Resolved Tickets</p>
@@ -116,10 +120,10 @@ export default function StudentDashboardPage() {
                     </div>
                   </div>
                   <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-200 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
-                </div>
+                </motion.div>
 
                 {/* Metric 4 */}
-                <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl p-6 border border-rose-100 shadow-sm relative overflow-hidden group">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }} className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl p-6 border border-rose-100 shadow-sm relative overflow-hidden group">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">Questions Missed by AI</p>
@@ -130,10 +134,10 @@ export default function StudentDashboardPage() {
                     </div>
                   </div>
                   <p className="text-[10px] text-rose-600/70 mt-3 font-medium">Questions where AI lacked knowledge</p>
-                </div>
+                </motion.div>
 
                 {/* Metric 5 */}
-                <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-6 border border-cyan-100 shadow-sm relative overflow-hidden group">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }} className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-6 border border-cyan-100 shadow-sm relative overflow-hidden group">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-xs font-bold text-cyan-600 uppercase tracking-wider mb-1">Helpful Feedback</p>
@@ -144,9 +148,9 @@ export default function StudentDashboardPage() {
                     </div>
                   </div>
                   <p className="text-[10px] text-cyan-600/70 mt-3 font-medium">Times you rated AI as helpful</p>
-                </div>
+                </motion.div>
 
-              </div>
+              </motion.div>
             ) : (
               <div className="text-center text-slate-500 py-12">Failed to load analytics data.</div>
             )}
